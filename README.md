@@ -24,7 +24,7 @@ npm install
 npm start
 ```
 
-###FRONTEND
+### FRONTEND
 ```bash
 cd repairconnect-frontend
 npm install
