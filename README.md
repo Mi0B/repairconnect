@@ -1,6 +1,3 @@
-# repairconnect
-Team 2 Software Engineering Project Fall 2025 
-
 # RepairConnect
 
 Toy project for our Software Engineering course — full-stack app with React (frontend), Node.js + Express (backend), and Neon PostgreSQL DB.
