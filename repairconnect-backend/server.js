@@ -128,4 +128,46 @@ app.get("/admin/summary", requireAuth, requireAdmin, (req, res) => {
   });
 });
 
+// ✅ List all users for admins without exposing password hashes
+app.get("/admin/users", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const users = await sql`
+      SELECT id, name, email, role
+      FROM users
+      ORDER BY id
+    `;
+
+    res.json(users);
+  } catch (err) {
+    console.error("Failed to load users:", err);
+    res.status(500).json({ error: "Failed to load users" });
+  }
+});
+
+// ✅ Allow admins to delete users by id
+app.delete("/admin/users/:id", requireAuth, requireAdmin, async (req, res) => {
+  const userId = Number.parseInt(req.params.id, 10);
+
+  if (Number.isNaN(userId)) {
+    return res.status(400).json({ error: "Invalid user id" });
+  }
+
+  try {
+    const deleted = await sql`
+      DELETE FROM users
+      WHERE id = ${userId}
+      RETURNING id
+    `;
+
+    if (deleted.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "User deleted", id: deleted[0].id });
+  } catch (err) {
+    console.error("Failed to delete user:", err);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
 app.listen(PORT, () => console.log(`🚀 API running on http://localhost:${PORT}`));
