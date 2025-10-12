@@ -95,21 +95,26 @@ app.post("/auth/login", async (req, res) => {
     }
 
     if (user.status === "suspended") {
-      const suspendedUntil = user.suspended_until ? new Date(user.suspended_until) : null;
-      const now = new Date();
+      const [{ remaining_seconds: remainingSecondsRaw = 0 } = {}] = await sql`
+        SELECT EXTRACT(EPOCH FROM (suspended_until - NOW())) AS remaining_seconds
+        FROM users
+        WHERE id = ${user.id}
+      `;
 
-      if (suspendedUntil && suspendedUntil > now) {
-        const remainingHours = Math.ceil((suspendedUntil - now) / 3600000);
+      const remainingSeconds = Number(remainingSecondsRaw);
+
+      if (remainingSeconds > 0) {
+        const remainingHours = Math.ceil(remainingSeconds / 3600);
         return res.status(403).json({
           error: `Your account is suspended for another ${remainingHours} hour(s).`,
         });
-      } else {
-        // Suspension expired — reactivate user
-        await sql`
-          UPDATE users SET status = 'active', suspended_until = NULL WHERE id = ${user.id}`;
-        user.status = "active";
-        user.suspended_until = null;
       }
+
+      // Suspension expired — reactivate user
+      await sql`
+        UPDATE users SET status = 'active', suspended_until = NULL WHERE id = ${user.id}`;
+      user.status = "active";
+      user.suspended_until = null;
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);

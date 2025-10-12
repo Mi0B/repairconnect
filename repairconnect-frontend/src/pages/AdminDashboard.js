@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import styles from "./AdminDashboard.module.css";
 
 const API_BASE = "http://localhost:8080";
 
@@ -144,62 +145,25 @@ function AdminDashboard() {
     durationValue,
     setDurationValue,
   }) {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          background: visible ? "rgba(0,0,0,0.4)" : "transparent",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: visible ? 1 : 0,
-          transition: "opacity 0.3s ease",
-          pointerEvents: visible ? "auto" : "none",
-          zIndex: 9999,
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            padding: "24px 28px",
-            borderRadius: 10,
-            width: "90%",
-            maxWidth: 400,
-            textAlign: "center",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-            transform: visible ? "scale(1)" : "scale(0.9)",
-            transition: "transform 0.25s ease",
-          }}
-        >
-          <h3 style={{ marginBottom: 12, color }}>{title}</h3>
-          <p style={{ marginBottom: 20 }}>{message}</p>
+    const overlayClass = `${styles.modalOverlay} ${
+      visible ? styles.modalOverlayVisible : ""
+    }`;
+    const contentClass = `${styles.modalContent} ${
+      visible ? styles.modalContentVisible : ""
+    }`;
 
+    return (
+      <div className={overlayClass}>
+        <div className={contentClass} style={{ "--modal-accent": color }}>
+          <h3 className={styles.modalTitle}>{title}</h3>
+          <p className={styles.modalMessage}>{message}</p>
           {showDuration && (
-            <div style={{ marginBottom: 20 }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: 6,
-                  fontSize: 14,
-                  color: "#444",
-                  textAlign: "left",
-                }}
-              >
-                Suspension Duration:
-              </label>
+            <div className={styles.modalDuration}>
+              <label className={styles.modalDurationLabel}>Suspension Duration:</label>
               <select
                 value={durationValue}
                 onChange={(e) => setDurationValue(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: 8,
-                  borderRadius: 6,
-                  border: "1px solid #ccc",
-                }}
+                className={styles.modalDurationSelect}
               >
                 <option value="6">6 hours</option>
                 <option value="12">12 hours</option>
@@ -209,31 +173,16 @@ function AdminDashboard() {
               </select>
             </div>
           )}
-
-          <div>
+          <div className={styles.modalActions}>
             <button
               onClick={onConfirm}
-              style={{
-                padding: "8px 16px",
-                background: color,
-                color: "white",
-                border: "none",
-                borderRadius: 6,
-                marginRight: 10,
-                cursor: "pointer",
-              }}
+              className={`${styles.modalButton} ${styles.modalConfirm}`}
             >
               {confirmLabel || "Confirm"}
             </button>
             <button
               onClick={onCancel}
-              style={{
-                padding: "8px 16px",
-                background: "#ccc",
-                border: "none",
-                borderRadius: 6,
-                cursor: "pointer",
-              }}
+              className={`${styles.modalButton} ${styles.modalCancel}`}
             >
               Cancel
             </button>
@@ -262,82 +211,41 @@ function AdminDashboard() {
   }
 
   return (
-    <div style={{ maxWidth: 800, margin: "2rem auto" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "1rem" }}>Admin Dashboard</h1>
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-        <button
-          onClick={confirmLogout}
-          style={{
-            padding: "8px 16px",
-            background: "#555",
-            color: "white",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-          }}
-        >
+    <div className={styles.container}>
+      <h1 className={styles.title}>Admin Dashboard</h1>
+      <div className={styles.logoutWrap}>
+        <button onClick={confirmLogout} className={styles.logoutButton}>
           Log Out
         </button>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {!loading && error && <p style={{ color: "#b00020" }}>{error}</p>}
+      {loading && <p className={styles.stateMessage}>Loading...</p>}
+      {!loading && error && <p className={styles.error}>{error}</p>}
 
       {!loading && !error && (
         <>
           {summary && summary.stats && (
-            <section style={{ marginBottom: 40 }}>
-              <div
-                style={{
-                  display: "grid",
-                  gap: 10,
-                  gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-                }}
-              >
+            <section className={styles.summarySection}>
+              <div className={styles.summaryGrid}>
                 {Object.entries(summary.stats).map(([label, value]) => (
-                  <div
-                    key={label}
-                    style={{
-                      background: "#f5f5f5",
-                      padding: "12px 14px",
-                      borderRadius: 8,
-                      textTransform: "capitalize",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                    }}
-                  >
-                    <div style={{ fontSize: 12, color: "#666" }}>{label}</div>
-                    <div style={{ fontSize: 20, fontWeight: "bold" }}>{value}</div>
+                  <div key={label} className={styles.summaryCard}>
+                    <div className={styles.summaryLabel}>{label}</div>
+                    <div className={styles.summaryValue}>{value}</div>
                   </div>
                 ))}
               </div>
             </section>
           )}
 
-          {/* ✅ Users Table */}
-          <section>
-            <h2 style={{ marginBottom: 10 }}>Users</h2>
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  borderRadius: 6,
-                  overflow: "hidden",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
-                }}
-              >
+          <section className={styles.usersSection}>
+            <h2 className={styles.sectionTitle}>Users</h2>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
                 <thead>
-                  <tr style={{ textAlign: "left", background: "#fafafa" }}>
+                  <tr className={styles.tableHeadRow}>
                     {["ID", "Name", "Email", "Role", "Status", "Suspended Until", "Actions"].map(
                       (th) => (
-                        <th
-                          key={th}
-                          style={{
-                            padding: "10px 12px",
-                            borderBottom: "1px solid #ddd",
-                            fontWeight: "600",
-                          }}
-                        >
+                        <th key={th} className={styles.tableHeader}>
                           {th}
                         </th>
                       )
@@ -349,138 +257,77 @@ function AdminDashboard() {
                     const isActive = user.status === "active" || !user.status;
                     const isSuspended = user.status === "suspended";
                     const isBanned = user.status === "banned";
+                    const statusClass = isBanned
+                      ? styles.statusBanned
+                      : isSuspended
+                      ? styles.statusSuspended
+                      : styles.statusActive;
 
                     return (
                       <tr key={user.id}>
-                        <td style={{ padding: "10px 12px", borderBottom: "1px solid #eee" }}>
-                          {user.id}
-                        </td>
-                        <td style={{ padding: "10px 12px", borderBottom: "1px solid #eee" }}>
+                        <td className={`${styles.tableCell} ${styles.idCell}`}>{user.id}</td>
+                        <td className={`${styles.tableCell} ${styles.nameCell}`}>
                           {user.name || "-"}
                         </td>
-                        <td style={{ padding: "10px 12px", borderBottom: "1px solid #eee" }}>
-                          {user.email}
-                        </td>
-                        <td style={{ padding: "10px 12px", borderBottom: "1px solid #eee" }}>
-                          {user.role}
-                        </td>
+                        <td className={`${styles.tableCell} ${styles.emailCell}`}>{user.email}</td>
+                        <td className={`${styles.tableCell} ${styles.roleCell}`}>{user.role}</td>
                         <td
-                          style={{
-                            padding: "10px 12px",
-                            borderBottom: "1px solid #eee",
-                            color: isBanned
-                              ? "#d32f2f"
-                              : isSuspended
-                              ? "#ff9800"
-                              : "#388e3c",
-                            textTransform: "capitalize",
-                          }}
+                          className={`${styles.tableCell} ${styles.statusCell} ${statusClass}`}
                         >
                           {user.status || "active"}
                         </td>
-                        <td style={{ padding: "10px 12px", borderBottom: "1px solid #eee" }}>
+                        <td className={`${styles.tableCell} ${styles.suspendedCell}`}>
                           {formatDate(user.suspended_until)}
                         </td>
-                        <td
-                          style={{
-                            padding: "10px 12px",
-                            borderBottom: "1px solid #eee",
-                            whiteSpace: "nowrap", // ✅ keeps buttons on one line
-                          }}
-                        >
-                          {isActive && (
-                            <>
-                              <button
-                                onClick={() => openConfirmModal(user, "suspend")}
-                                style={{
-                                  marginRight: 6,
-                                  padding: "5px 10px",
-                                  background: "#ff9800",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: 4,
-                                  fontSize: 13,
-                                }}
-                              >
-                                Suspend
-                              </button>
-                              <button
-                                onClick={() => openConfirmModal(user, "ban")}
-                                style={{
-                                  marginRight: 6,
-                                  padding: "5px 10px",
-                                  background: "#9c27b0",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: 4,
-                                  fontSize: 13,
-                                }}
-                              >
-                                Ban
-                              </button>
-                            </>
-                          )}
-                          {isSuspended && (
-                            <>
+                        <td className={`${styles.tableCell} ${styles.actionCell}`}>
+                          <div className={styles.actionGroup}>
+                            {isActive && (
+                              <>
+                                <button
+                                  onClick={() => openConfirmModal(user, "suspend")}
+                                  className={`${styles.actionButton} ${styles.suspendButton}`}
+                                >
+                                  Suspend
+                                </button>
+                                <button
+                                  onClick={() => openConfirmModal(user, "ban")}
+                                  className={`${styles.actionButton} ${styles.banButton}`}
+                                >
+                                  Ban
+                                </button>
+                              </>
+                            )}
+                            {isSuspended && (
+                              <>
+                                <button
+                                  onClick={() => openConfirmModal(user, "activate")}
+                                  className={`${styles.actionButton} ${styles.activateButton}`}
+                                >
+                                  Reactivate
+                                </button>
+                                <button
+                                  onClick={() => openConfirmModal(user, "ban")}
+                                  className={`${styles.actionButton} ${styles.banButton}`}
+                                >
+                                  Ban
+                                </button>
+                              </>
+                            )}
+                            {isBanned && (
                               <button
                                 onClick={() => openConfirmModal(user, "activate")}
-                                style={{
-                                  marginRight: 6,
-                                  padding: "5px 10px",
-                                  background: "#388e3c",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: 4,
-                                  fontSize: 13,
-                                }}
+                                className={`${styles.actionButton} ${styles.activateButton}`}
                               >
                                 Reactivate
                               </button>
-                              <button
-                                onClick={() => openConfirmModal(user, "ban")}
-                                style={{
-                                  marginRight: 6,
-                                  padding: "5px 10px",
-                                  background: "#9c27b0",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: 4,
-                                  fontSize: 13,
-                                }}
-                              >
-                                Ban
-                              </button>
-                            </>
-                          )}
-                          {isBanned && (
+                            )}
                             <button
-                              onClick={() => openConfirmModal(user, "activate")}
-                              style={{
-                                marginRight: 6,
-                                padding: "5px 10px",
-                                background: "#388e3c",
-                                color: "white",
-                                border: "none",
-                                borderRadius: 4,
-                                fontSize: 13,
-                              }}
+                              onClick={() => openConfirmModal(user, "delete")}
+                              className={`${styles.actionButton} ${styles.deleteButton}`}
                             >
-                              Reactivate
+                              Delete
                             </button>
-                          )}
-                          <button
-                            onClick={() => openConfirmModal(user, "delete")}
-                            style={{
-                              padding: "5px 10px",
-                              background: "#d32f2f",
-                              color: "white",
-                              border: "none",
-                              borderRadius: 4,
-                              fontSize: 13,
-                            }}
-                          >
-                            Delete
-                          </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -492,7 +339,6 @@ function AdminDashboard() {
         </>
       )}
 
-      {/* Confirmation Modals */}
       <Modal
         visible={confirmVisible}
         title={getActionDetails(confirmAction).label}
