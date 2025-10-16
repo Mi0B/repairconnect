@@ -45,7 +45,7 @@ function Home() {
       if (res.ok) {
         localStorage.setItem("rc_token", data.token);
 
-        const decoded = jwtDecode(data.token);
+  const decoded = jwtDecode(data.token);
         console.log("Decoded token:", decoded);
 
         if (decoded.role === "provider") {

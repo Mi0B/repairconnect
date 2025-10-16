@@ -83,6 +83,37 @@ function AdminDashboard() {
     setConfirmAction(null);
   }
 
+  // Handles the approval of a provider.
+  async function handleApprove(userId) {
+    if (!token) return;
+
+    try {
+      setActioningId(userId);
+      setError(null);
+
+      const res = await fetch(`${API_BASE}/admin/users/${userId}/approve`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) throw new Error("Unauthorized");
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Failed to approve user");
+      }
+
+      // On successful approval, remove the user from the local state to update the UI.
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    } catch (err) {
+      console.error("Failed to approve user", err);
+      setError(err.message || "Failed to approve user");
+    } finally {
+      setActioningId(null);
+    }
+  }
+
   async function handleConfirmedAction() {
     if (!token || !confirmUser || !confirmAction) return;
 
@@ -253,10 +284,12 @@ function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map((user) => {
+                  {/* Filter users to display only providers with a 'pending' status. */}
+                  {users.filter(user => user.role === 'provider' && user.status === 'pending').map((user) => {
                     const isActive = user.status === "active" || !user.status;
                     const isSuspended = user.status === "suspended";
                     const isBanned = user.status === "banned";
+                    const isPending = user.status === "pending";
                     const statusClass = isBanned
                       ? styles.statusBanned
                       : isSuspended
@@ -294,6 +327,17 @@ function AdminDashboard() {
                                   className={`${styles.actionButton} ${styles.banButton}`}
                                 >
                                   Ban
+                                </button>
+                              </>
+                            )}
+                            {/* Show the approve button only for users with a 'pending' status. */}
+                            {isPending && (
+                              <>
+                                <button
+                                  onClick={() => handleApprove(user.id)}
+                                  className={`${styles.actionButton} ${styles.approveButton}`}
+                                >
+                                  Approve
                                 </button>
                               </>
                             )}

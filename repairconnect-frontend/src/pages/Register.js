@@ -7,6 +7,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("customer"); // Add role state, default to 'customer'
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -18,7 +19,7 @@ export default function Register() {
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, role }), // Send role to backend
       });
 
       const data = await res.json();
@@ -56,6 +57,10 @@ export default function Register() {
         onChange={(e) => setPassword(e.target.value)}
         required
       />
+      <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <option value="customer">Customer</option>
+        <option value="provider">Provider</option>
+      </select>
       <button type="submit">Register</button>
     </form>
   );
